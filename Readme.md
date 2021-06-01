@@ -13,7 +13,7 @@ pip install git+https://github.com/imba-tjd/mingw64ccompiler
 python -m mingw64ccompiler install
 ```
 
-After this, the default compiler would be gcc, and it would link to ucrt.
+After this, the default compiler would be gcc, and it would link with ucrt.
 
 Alternatively if you are confident with your compiler, in `setup.py`:
 
