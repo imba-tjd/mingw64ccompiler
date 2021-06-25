@@ -4,9 +4,10 @@ import subprocess
 import os
 import sys
 
-
 __all__ = ['patch']
 
+
+# Monkey patch
 
 def get_msvcr():
     assert platform.python_compiler().startswith('MSC v.19')
@@ -21,9 +22,14 @@ def customize_compiler(compiler, optimize=True):
         options = ['-DMS_WIN64', '-Wall']
 
     compiler.compiler = ['gcc'] + options
-    compiler.compiler_so = ['gcc', '-mdll'] + options
+    compiler.compiler_so = ['gcc', '-shared'] + options
     compiler.compiler_cxx = ['g++'] + options
+    # compiler.compiler = [compiler.cc] + options
+    # compiler.compiler_so = [compiler.cc, '-shared'] + options
+    # compiler.compiler_cxx = [compiler.cxx] + options
 
+
+# MinGW ucrt spec patch
 
 def patch():
     assert platform.system() == 'Windows'
@@ -53,6 +59,8 @@ def specs_install():
 def specs_uninstall():
     os.remove(specs_get_path())
 
+
+# Customizepy patch. (do the monkey patch before any code run)
 
 def is_in_venv():
     b = sys.prefix == sys.base_prefix
@@ -89,6 +97,8 @@ def customizepy_uninstall():
     os.remove(cuspy_path)
 
 
+# CLI
+
 def check():
     gccv = subprocess.run(['gcc', '-v'], capture_output=True, check=True, text=True).stderr
     if 'Reading specs' in gccv:
@@ -111,26 +121,17 @@ def check():
     print('mingw64ccompiler is not installed into customizepy.')
 
 
-def install():
-    if not is_in_venv():
-        specs_install()
-    customizepy_install()
-
-
-def uninstall():
-    if not is_in_venv():
-        specs_uninstall()
-    customizepy_uninstall()
-
-
 def help_msg_print():
     print('A monkey patch for cygwinccompiler which enables you to use MinGW-w64.')
+    print('Valid commands:', list(verbs))
+
+
+verbs = {'install': customizepy_install, 'uninstall': customizepy_uninstall,
+         'install_specs': specs_install, 'uninstall_specs': specs_uninstall,
+         'check': check, '-h': help_msg_print, '--help': help_msg_print}
 
 
 def main():
-    verbs = {'install': install, 'uninstall': uninstall, 'check': check,
-             '-h': help_msg_print, '--help': help_msg_print}
-
     if len(sys.argv) == 1:
         sys.argv += ['-h']
     elif len(sys.argv) > 2 or sys.argv[1] not in verbs:

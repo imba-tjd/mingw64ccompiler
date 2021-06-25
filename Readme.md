@@ -10,7 +10,8 @@ WARNING 2: This project is not widely tested. Use with caution.
 
 ```bash
 pip install git+https://github.com/imba-tjd/mingw64ccompiler
-python -m mingw64ccompiler install
+python -m mingw64ccompiler install_specs
+python -m mingw64ccompiler install  # Works with venv
 ```
 
 After this, the default compiler would be gcc, and it would link with ucrt.
