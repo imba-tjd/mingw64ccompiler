@@ -33,8 +33,17 @@ For details, see [`mingw64ccompiler.py`](./mingw64ccompiler.py).
 * `unknown conversion type character 'z' in format`
 * Current API is inconvenient to disable optimize
 
+## Known to fail
+
+* psutil: https://github.com/giampaolo/psutil/issues/330
+* lxml: `Could not find function xmlCheckVersion in library libxml2. Is libxml2 installed?`
+
 ## Reference
 
 * https://stackoverflow.com/questions/57528555/how-do-i-build-against-the-ucrt-with-mingw-w64
 * https://github.com/cython/cython/wiki/CythonExtensionsOnWindows#less-useful-information
 * https://bugs.python.org/issue25251
+
+## TODO
+
+* `DeprecationWarning: The distutils package is deprecated and slated for removal in Python 3.12. Use setuptools or check PEP 632 for potential alternatives`
