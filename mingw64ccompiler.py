@@ -7,7 +7,7 @@ import sys
 __all__ = ['patch']
 
 
-# Monkey patch
+# ccompiler monkey patch
 
 def get_msvcr():
     assert platform.python_compiler().startswith('MSC v.19')
@@ -16,17 +16,22 @@ def get_msvcr():
 
 
 def customize_compiler(compiler, optimize=True):
-    if optimize:
-        options = ['-DMS_WIN64', '-Ofast', '-DNDEBUG', '-mtune=native', '-fwrapv']
+    '''Was called in build_ext.py. Original function doesn't do anything on Win.'''
+    options = []
+    if '64bit' in platform.architecture():
+        options.append('-DMS_WIN64')
     else:
-        options = ['-DMS_WIN64', '-Wall']
+        options.append('-m32')
+    if optimize:
+        options += ['-Ofast', '-DNDEBUG', '-mtune=native', '-fwrapv']
+    else:
+        options += ['-Wall']
 
-    compiler.compiler = ['gcc'] + options
-    compiler.compiler_so = ['gcc', '-shared'] + options
-    compiler.compiler_cxx = ['g++'] + options
-    # compiler.compiler = [compiler.cc] + options
-    # compiler.compiler_so = [compiler.cc, '-shared'] + options
-    # compiler.compiler_cxx = [compiler.cxx] + options
+    compiler.compiler = [compiler.compiler[0]] + options # Original: ['gcc', '-O', '-Wall']
+    compiler.compiler_so = [compiler.compiler_so[0], '-shared'] + options # Original: ['gcc', '-mdll', '-O', '-Wall']
+    compiler.compiler_cxx = [compiler.compiler_cxx[0]] + options
+    if '32bit' in platform.architecture():
+        compiler.linker_so.append('-m32')
 
 
 # MinGW ucrt spec patch
@@ -74,7 +79,7 @@ def customizepy_get_path():
     if is_in_venv():
         return site.getsitepackages()[0] + os.sep + 'sitecustomize.py'
     else:
-        assert site.ENABLE_USER_SITE == True
+        assert site.ENABLE_USER_SITE
         return site.getusersitepackages() + os.sep + 'usercustomize.py'
 
 
