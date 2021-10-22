@@ -14,24 +14,18 @@ python -m mingw64ccompiler install_specs
 python -m mingw64ccompiler install  # Works with venv
 ```
 
-After this, the default compiler would be gcc, and it would link with ucrt.
+Then `python setup.py build_ext -i`, `cythonize -i`, `mypyc`, `pip wheel .` will use gcc as the default compiler, and it would link with ucrt.
 
-Alternatively if you are confident with your compiler, in `setup.py`:
-
-```py
-__import__('mingw64ccompiler').patch()
-```
-
-For details, see [`mingw64ccompiler.py`](./mingw64ccompiler.py).
+To programmally patch, use `__import__('mingw64ccompiler').patch()`. This doesn't require you to use `install` command firstly.
 
 ## Limitation
 
-* I have never used Anaconda and know nothing about it
-* Normal modules and Python are compiled and linked with `vcruntime140.dll`, but MinGW-w64 doesn't include it. Adding `-L sys.base_prefix` could work, and that directory is actually added in venv. I don't know waht to choose
-* I can't find a way to run `cythonize` without `install`
-* I don't know why but this works with `$env:SETUPTOOLS_USE_DISTUTILS="local"`
-* `unknown conversion type character 'z' in format`
+* Normal modules and Python are compiled and linked with `vcruntime140.dll`, but MinGW-w64 doesn't contain it. Adding `-L sys.base_prefix` could work, and that directory actually has been added in venv. I'm not sure which behavior is correct
+* You must use `install` command before using `cythonize` and other CLI tools
+* `unknown conversion type character 'z' in format` when using `from cpython cimport array`
 * Current API is inconvenient to disable optimize
+* I don't know why but this works with `$env:SETUPTOOLS_USE_DISTUTILS="local"`
+* I have never used Anaconda and know nothing about it
 
 ## Known to fail
 
