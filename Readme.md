@@ -31,6 +31,7 @@ To programmally patch, use `__import__('mingw64ccompiler').patch()`. This doesn'
 
 * psutil: https://github.com/giampaolo/psutil/issues/330
 * lxml: `Could not find function xmlCheckVersion in library libxml2. Is libxml2 installed?`
+* llvmlite: requires cmake
 
 ## Reference
 
