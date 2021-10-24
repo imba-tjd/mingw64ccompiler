@@ -29,6 +29,7 @@ def customize_compiler(compiler):
     compiler.compiler = [compiler.compiler[0]] + options  # Original: ['gcc', '-O', '-Wall']
     compiler.compiler_so = [compiler.compiler_so[0], '-shared'] + options  # Original: ['gcc', '-mdll', '-O', '-Wall']
     compiler.compiler_cxx = [compiler.compiler_cxx[0]] + options
+    compiler.linker_so.append('-Wl,--as-needed')
     if '32bit' in platform.architecture():
         compiler.linker_so.append('-m32')
 
