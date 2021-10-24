@@ -1,10 +1,9 @@
 from distutils import cygwinccompiler, sysconfig, ccompiler
+# from setuptools._distutils import cygwinccompiler, sysconfig, ccompiler
 import platform
 import subprocess
 import os
 import sys
-
-__all__ = ['patch']
 
 
 # ccompiler monkey patch
@@ -15,20 +14,20 @@ def get_msvcr():
     return []
 
 
-def customize_compiler(compiler, optimize=True):
+def customize_compiler(compiler):
     '''Was called in build_ext.py. Original function doesn't do anything on Win.'''
     options = []
     if '64bit' in platform.architecture():
         options.append('-DMS_WIN64')
     else:
         options.append('-m32')
-    if optimize:
+    if not os.getenv('MINGW64CCOMPILER_DEBUG'):
         options += ['-Ofast', '-DNDEBUG', '-mtune=native', '-fwrapv']
     else:
         options += ['-Wall']
 
-    compiler.compiler = [compiler.compiler[0]] + options # Original: ['gcc', '-O', '-Wall']
-    compiler.compiler_so = [compiler.compiler_so[0], '-shared'] + options # Original: ['gcc', '-mdll', '-O', '-Wall']
+    compiler.compiler = [compiler.compiler[0]] + options  # Original: ['gcc', '-O', '-Wall']
+    compiler.compiler_so = [compiler.compiler_so[0], '-shared'] + options  # Original: ['gcc', '-mdll', '-O', '-Wall']
     compiler.compiler_cxx = [compiler.compiler_cxx[0]] + options
     if '32bit' in platform.architecture():
         compiler.linker_so.append('-m32')
@@ -39,7 +38,7 @@ def customize_compiler(compiler, optimize=True):
 def patch():
     assert platform.system() == 'Windows'
     cygwinccompiler.get_msvcr = get_msvcr
-    sysconfig.customize_compiler = customize_compiler
+    sysconfig.customize_compiler = customize_compiler  # Note it's distutils' module rather than sysconfig library
     ccompiler.get_default_compiler = lambda _: 'mingw32'
 
 
@@ -68,8 +67,8 @@ def specs_uninstall():
 # Customizepy patch. (do the monkey patch before any code run)
 
 def is_in_venv():
-    b = sys.prefix == sys.base_prefix
-    assert b == (sys._home is None)
+    b = sys.prefix == sys.base_prefix  # equal when not in venv
+    assert b == (sys._home is None)  # _home is None when not in venv
     return not b
 
 
@@ -136,7 +135,7 @@ verbs = {'install': customizepy_install, 'uninstall': customizepy_uninstall,
          'check': check, '-h': help_msg_print, '--help': help_msg_print}
 
 
-def main():
+def _main():
     if len(sys.argv) == 1:
         sys.argv += ['-h']
     elif len(sys.argv) > 2 or sys.argv[1] not in verbs:
@@ -146,4 +145,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    _main()

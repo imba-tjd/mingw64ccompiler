@@ -18,12 +18,13 @@ Then `python setup.py build_ext -i`, `cythonize -i`, `mypyc`, `pip wheel .` will
 
 To programmally patch, use `__import__('mingw64ccompiler').patch()`. This doesn't require you to use `install` command firstly.
 
+To use `-Wall` rather than `-Ofast`, set `MINGW64CCOMPILER_DEBUG` environment variable.
+
 ## Limitation
 
 * Normal modules and Python are compiled and linked with `vcruntime140.dll`, but MinGW-w64 doesn't contain it. Adding `-L sys.base_prefix` could work, and that directory actually has been added in venv. I'm not sure which behavior is correct
 * You must use `install` command before using `cythonize` and other CLI tools
 * `unknown conversion type character 'z' in format` when using `from cpython cimport array`
-* Current API is inconvenient to disable optimize
 * I don't know why but this works with `$env:SETUPTOOLS_USE_DISTUTILS="local"`
 * I have never used Anaconda and know nothing about it
 
@@ -38,7 +39,3 @@ To programmally patch, use `__import__('mingw64ccompiler').patch()`. This doesn'
 * https://stackoverflow.com/questions/57528555/how-do-i-build-against-the-ucrt-with-mingw-w64
 * https://github.com/cython/cython/wiki/CythonExtensionsOnWindows#less-useful-information
 * https://bugs.python.org/issue25251
-
-## TODO
-
-* `DeprecationWarning: The distutils package is deprecated and slated for removal in Python 3.12. Use setuptools or check PEP 632 for potential alternatives`
