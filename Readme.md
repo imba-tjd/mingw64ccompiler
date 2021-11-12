@@ -33,6 +33,7 @@ To use `-Wall` rather than `-Ofast`, set `MINGW64CCOMPILER_DEBUG` environment va
 * psutil: https://github.com/giampaolo/psutil/issues/330
 * lxml: `Could not find function xmlCheckVersion in library libxml2. Is libxml2 installed?`
 * llvmlite: requires cmake
+* numpy: still says VC++14 is required. Besides it may need openblas setup.
 
 ## Reference
 
