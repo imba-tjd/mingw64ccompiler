@@ -2,6 +2,8 @@
 
 This is a monkey patch for cygwinccompiler which enables you to use MinGW-w64 as the compiler on Windows.
 
+Though this patch doesn't work after https://github.com/pypa/setuptools/pull/2896. I will fix this when I have time.
+
 WARNING: Mixing CRT is dangerous. This is only for testing. Always prefer MSVC.
 
 WARNING 2: This project is not widely tested. Use with caution.
@@ -10,7 +12,7 @@ WARNING 2: This project is not widely tested. Use with caution.
 
 ```bash
 pip install git+https://github.com/imba-tjd/mingw64ccompiler
-python -m mingw64ccompiler install_specs
+python -m mingw64ccompiler install_specs  # Run once
 python -m mingw64ccompiler install  # Works with venv
 ```
 
@@ -22,10 +24,8 @@ To use `-Wall` rather than `-Ofast`, set `MINGW64CCOMPILER_DEBUG` environment va
 
 ## Limitation
 
-* Normal modules and Python are compiled and linked with `vcruntime140.dll`, but MinGW-w64 doesn't contain it. Adding `-L sys.base_prefix` could work, and that directory actually has been added in venv. I'm not sure which behavior is correct
 * You must use `install` command before using `cythonize` and other CLI tools
 * `unknown conversion type character 'z' in format` when using `from cpython cimport array`
-* I don't know why but this works with `$env:SETUPTOOLS_USE_DISTUTILS="local"`
 * I have never used Anaconda and know nothing about it
 
 ## Known to fail

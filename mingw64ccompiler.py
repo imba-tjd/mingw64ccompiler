@@ -8,7 +8,7 @@ import sys
 
 # ccompiler monkey patch
 
-def get_msvcr():
+def get_msvcr():  # needn't after setuptools 60
     assert platform.python_compiler().startswith('MSC v.19')
     # return ['ucrt', 'vcruntime140']
     return []
@@ -29,7 +29,8 @@ def customize_compiler(compiler):
     compiler.compiler = [compiler.compiler[0]] + options  # Original: ['gcc', '-O', '-Wall']
     compiler.compiler_so = [compiler.compiler_so[0], '-shared'] + options  # Original: ['gcc', '-mdll', '-O', '-Wall']
     compiler.compiler_cxx = [compiler.compiler_cxx[0]] + options
-    compiler.linker_so.append('-Wl,--as-needed')
+    if not os.getenv('MINGW64CCOMPILER_DEBUG'):
+        compiler.linker_so.append('-Wl,--as-needed')
     if '32bit' in platform.architecture():
         compiler.linker_so.append('-m32')
 
@@ -38,7 +39,7 @@ def customize_compiler(compiler):
 
 def patch():
     assert platform.system() == 'Windows'
-    cygwinccompiler.get_msvcr = get_msvcr
+    # cygwinccompiler.get_msvcr = get_msvcr
     sysconfig.customize_compiler = customize_compiler  # Note it's distutils' module rather than sysconfig library
     ccompiler.get_default_compiler = lambda _: 'mingw32'
 
