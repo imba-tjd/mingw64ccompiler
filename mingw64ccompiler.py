@@ -1,50 +1,58 @@
-from distutils import cygwinccompiler, sysconfig, ccompiler
-# from setuptools._distutils import cygwinccompiler, sysconfig, ccompiler
 import platform
 import subprocess
 import os
 import sys
+from setuptools._distutils import cygwinccompiler, ccompiler
+from setuptools._distutils.cygwinccompiler import CygwinCCompiler, is_cygwincc, CCompilerError
 
 
-# ccompiler monkey patch
+class Mingw64CCompiler(CygwinCCompiler):
+    compiler_type = 'mingw64'
 
-def get_msvcr():  # needn't after setuptools 60
-    assert platform.python_compiler().startswith('MSC v.19')
-    # return ['ucrt', 'vcruntime140']
-    return []
+    def __init__(self, *args, **kwargs):
+        super().__init__ (*args, **kwargs)
+
+        if is_cygwincc(self.cc):
+            raise CCompilerError('Cygwin gcc cannot be used with --compiler=mingw64')
 
 
-def customize_compiler(compiler):
-    '''Was called in build_ext.py. Original function doesn't do anything on Win.'''
-    options = []
-    if '64bit' in platform.architecture():
-        options.append('-DMS_WIN64')
-    else:
-        options.append('-m32')
-    if not os.getenv('MINGW64CCOMPILER_DEBUG'):
-        options += ['-Ofast', '-DNDEBUG', '-mtune=native', '-fwrapv']
-    else:
-        options += ['-Wall']
+        options = []
+        if '64bit' in platform.architecture():
+            options.append('-DMS_WIN64')
+        else:
+            options.append('-m32')
+        if not os.getenv('MINGW64CCOMPILER_DEBUG'):
+            options += ['-Ofast', '-DNDEBUG', '-mtune=native', '-fwrapv']
+        else:
+            options += ['-g', '-Wall']
+        options_str = ' '.join(options)
 
-    compiler.compiler = [compiler.compiler[0]] + options  # Original: ['gcc', '-O', '-Wall']
-    compiler.compiler_so = [compiler.compiler_so[0], '-shared'] + options  # Original: ['gcc', '-mdll', '-O', '-Wall']
-    compiler.compiler_cxx = [compiler.compiler_cxx[0]] + options
-    if not os.getenv('MINGW64CCOMPILER_DEBUG'):
-        compiler.linker_so.append('-Wl,--as-needed')
-    if '32bit' in platform.architecture():
-        compiler.linker_so.append('-m32')
+        linker_so_options_str = '-shared'
+        if not os.getenv('MINGW64CCOMPILER_DEBUG'):
+            linker_so_options_str += ' -Wl,--as-needed'
+        if '32bit' in platform.architecture():
+            linker_so_options_str += ' -m32'
+
+
+        self.set_executables(compiler=self.cc + ' ' + options_str,
+                             compiler_so=self.cc + ' -shared ' + options_str,
+                             compiler_cxx=self.cxx + ' ' + options_str,
+                             linker_exe=self.cc,
+                             linker_so=self.linker_dll + ' ' + linker_so_options_str)
+        self.dll_libraries = []  # get_msvcr()
+
+
+def patch():
+    assert platform.system() == 'Windows'
+    ccompiler.get_default_compiler = lambda _: 'mingw64'
+    ccompiler.compiler_class['mingw64'] = ('cygwinccompiler', 'Mingw64CCompiler', 'Mingw64 port of GNU C Compiler for Win32')
+    cygwinccompiler.Mingw64CCompiler = Mingw64CCompiler
+    sys.modules['distutils.cygwinccompiler'] = cygwinccompiler
 
 
 # MinGW ucrt spec patch
 
-def patch():
-    assert platform.system() == 'Windows'
-    # cygwinccompiler.get_msvcr = get_msvcr
-    sysconfig.customize_compiler = customize_compiler  # Note it's distutils' module rather than sysconfig library
-    ccompiler.get_default_compiler = lambda _: 'mingw32'
-
-
-def specs_get_content(modify=True):
+def specs_get_content(modify=False):
     content = subprocess.run(['gcc', '-dumpspecs'], capture_output=True, check=True, text=True).stdout
     if modify:
         content = content.replace('-lmsvcrt', '-lucrt') \
@@ -59,14 +67,14 @@ def specs_get_path():
 
 def specs_install():
     with open(specs_get_path(), 'x', encoding='u8') as f:
-        f.write(specs_get_content())
+        f.write(specs_get_content(True))
 
 
 def specs_uninstall():
     os.remove(specs_get_path())
 
 
-# Customizepy patch. (do the monkey patch before any code run)
+# Customizepy patch (do the monkey patch before any code run)
 
 def is_in_venv():
     b = sys.prefix == sys.base_prefix  # equal when not in venv
