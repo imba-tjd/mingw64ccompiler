@@ -2,7 +2,7 @@
 
 A monkey patch for cygwinccompiler which enables you to use MinGW-w64 as the compiler on Windows.
 
-WARNING: This project is not widely tested and is only for hobby/testing. Always prefer MSVC.
+WARNING: This project is not widely tested and is only for hobby. Always prefer MSVC.
 
 ## Usage
 
