@@ -20,6 +20,7 @@ To use `-Wall` rather than `-Ofast`, set `MINGW64CCOMPILER_DEBUG` environment va
 
 ## Limitation
 
+* `_distutils_hack\__init__.py:30: UserWarning: Setuptools is replacing distutils` when using pip CLI
 * `unknown conversion type character 'z' in format` when using `from cpython cimport array`
 * I have never used Anaconda and know nothing about it
 
@@ -34,4 +35,3 @@ To use `-Wall` rather than `-Ofast`, set `MINGW64CCOMPILER_DEBUG` environment va
 
 * https://stackoverflow.com/questions/57528555/how-do-i-build-against-the-ucrt-with-mingw-w64
 * https://github.com/cython/cython/wiki/CythonExtensionsOnWindows#less-useful-information
-* https://bugs.python.org/issue25251
