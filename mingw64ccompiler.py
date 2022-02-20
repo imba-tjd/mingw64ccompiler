@@ -89,7 +89,7 @@ def customizepy_get_path():
         return site.getsitepackages()[0] + os.sep + 'sitecustomize.py'
     else:
         assert site.ENABLE_USER_SITE
-        os.makedirs(site.getusersitepackages(), exists_ok=True)
+        os.makedirs(site.getusersitepackages(), exist_ok=True)
         return site.getusersitepackages() + os.sep + 'usercustomize.py'
 
 
