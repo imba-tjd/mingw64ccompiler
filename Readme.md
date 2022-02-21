@@ -20,9 +20,7 @@ To use `-Wall` rather than `-Ofast`, set `MINGW64CCOMPILER_DEBUG` environment va
 
 ## Limitation
 
-* `_distutils_hack\__init__.py:30: UserWarning: Setuptools is replacing distutils` when using pip CLI
 * `unknown conversion type character 'z' in format` when using `from cpython cimport array`
-* `npy_common.h warning: '_fseeki64'/'_ftelli64' redeclared`：https://github.com/numpy/numpy/issues/18541
 * I have never used Anaconda and know nothing about it
 
 ## Known to fail

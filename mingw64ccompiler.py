@@ -4,6 +4,7 @@ import os
 import sys
 from setuptools._distutils import cygwinccompiler, ccompiler
 from setuptools._distutils.cygwinccompiler import CygwinCCompiler, is_cygwincc, CCompilerError
+import _distutils_hack
 
 
 class Mingw64CCompiler(CygwinCCompiler):
@@ -42,12 +43,22 @@ class Mingw64CCompiler(CygwinCCompiler):
         self.dll_libraries = []  # get_msvcr()
 
 
+def suppress_warning(func):
+    import warnings
+    def f():
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            func()
+    return f
+
+
 def patch():
     assert platform.system() == 'Windows'
     ccompiler.get_default_compiler = lambda _: 'mingw64'
     ccompiler.compiler_class['mingw64'] = ('cygwinccompiler', 'Mingw64CCompiler', 'Mingw64 port of GNU C Compiler for Win32')
     cygwinccompiler.Mingw64CCompiler = Mingw64CCompiler
     sys.modules['distutils.cygwinccompiler'] = cygwinccompiler
+    _distutils_hack.clear_distutils = suppress_warning(_distutils_hack.clear_distutils)
 
 
 # MinGW ucrt spec patch
