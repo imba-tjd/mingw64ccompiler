@@ -45,6 +45,8 @@ class Mingw64CCompiler(CygwinCCompiler):
 
 def suppress_warning(func):
     import warnings
+    from functools import wraps
+    @wraps(func)
     def f():
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
