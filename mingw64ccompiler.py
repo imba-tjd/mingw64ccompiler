@@ -22,14 +22,14 @@ class Mingw64CCompiler(CygwinCCompiler):
             options.append('-DMS_WIN64')
         else:
             options.append('-m32')
-        if not os.getenv('MINGW64CCOMPILER_DEBUG'):
+        if not os.getenv('MINGW64CCOMPILER_DEBUG') and not sys.flags.debug:
             options += ['-Ofast', '-DNDEBUG', '-mtune=native', '-fwrapv']
         else:
             options += ['-g', '-Wall']
         options_str = ' '.join(options)
 
         linker_so_options_str = '-shared'
-        if not os.getenv('MINGW64CCOMPILER_DEBUG'):
+        if not os.getenv('MINGW64CCOMPILER_DEBUG') and not sys.flags.debug:
             linker_so_options_str += ' -Wl,--as-needed'
         if '32bit' in platform.architecture():
             linker_so_options_str += ' -m32'

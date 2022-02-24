@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name='mingw64ccompiler',
-    version='2.4',
+    version='2.5',
     install_requires=['setuptools>60'],
     py_modules=['mingw64ccompiler']
 )
