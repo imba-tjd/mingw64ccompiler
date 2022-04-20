@@ -33,11 +33,14 @@ class Mingw64CCompiler(CygwinCCompiler):
         if '32bit' in platform.architecture():
             linker_so_options_str += ' -m32'
 
-        self.set_executables(compiler=self.cc + ' ' + options_str,
-                             compiler_so=self.cc + ' -shared ' + options_str,
-                             compiler_cxx=self.cxx + ' ' + options_str,
-                             linker_exe=self.cc,
-                             linker_so=self.linker_dll + ' ' + linker_so_options_str)
+        self.set_executables(
+            compiler=f'{self.cc} {options_str}',
+            compiler_so=f'{self.cc} -shared {options_str}',
+            compiler_cxx=f'{self.cxx} {options_str}',
+            linker_exe=self.cc,
+            linker_so=f'{self.linker_dll} {linker_so_options_str}',
+        )
+
         self.dll_libraries = []  # get_msvcr()
 
 
@@ -100,14 +103,13 @@ def customizepy_get_path():
 
     if is_in_venv():
         return site.getsitepackages()[0] + os.sep + 'sitecustomize.py'
-    else:
-        assert site.ENABLE_USER_SITE
-        os.makedirs(site.getusersitepackages(), exist_ok=True)
-        return site.getusersitepackages() + os.sep + 'usercustomize.py'
+    assert site.ENABLE_USER_SITE
+    os.makedirs(site.getusersitepackages(), exist_ok=True)
+    return site.getusersitepackages() + os.sep + 'usercustomize.py'
 
 
 def customizepy_install():
-    content = f'__import__("mingw64ccompiler").patch()' + '\n'
+    content = '__import__("mingw64ccompiler").patch()' + '\n'
     cuspy_path = customizepy_get_path()
 
     with open(cuspy_path, 'x', encoding='u8') as f:
