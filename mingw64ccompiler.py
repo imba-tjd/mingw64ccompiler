@@ -103,6 +103,7 @@ def customizepy_get_path():
 
     if is_in_venv():
         return site.getsitepackages()[0] + os.sep + 'sitecustomize.py'
+
     assert site.ENABLE_USER_SITE
     os.makedirs(site.getusersitepackages(), exist_ok=True)
     return site.getusersitepackages() + os.sep + 'usercustomize.py'
