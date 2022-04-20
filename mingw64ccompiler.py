@@ -11,11 +11,10 @@ class Mingw64CCompiler(CygwinCCompiler):
     compiler_type = 'mingw64'
 
     def __init__(self, *args, **kwargs):
-        super().__init__ (*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         if is_cygwincc(self.cc):
             raise CCompilerError('Cygwin gcc cannot be used with --compiler=mingw64')
-
 
         options = []
         if '64bit' in platform.architecture():
@@ -34,7 +33,6 @@ class Mingw64CCompiler(CygwinCCompiler):
         if '32bit' in platform.architecture():
             linker_so_options_str += ' -m32'
 
-
         self.set_executables(compiler=self.cc + ' ' + options_str,
                              compiler_so=self.cc + ' -shared ' + options_str,
                              compiler_cxx=self.cxx + ' ' + options_str,
@@ -46,6 +44,7 @@ class Mingw64CCompiler(CygwinCCompiler):
 def suppress_warning(func):
     import warnings
     from functools import wraps
+
     @wraps(func)
     def f():
         with warnings.catch_warnings():
@@ -57,7 +56,8 @@ def suppress_warning(func):
 def patch():
     assert platform.system() == 'Windows'
     ccompiler.get_default_compiler = lambda _: 'mingw64'
-    ccompiler.compiler_class['mingw64'] = ('cygwinccompiler', 'Mingw64CCompiler', 'Mingw64 port of GNU C Compiler for Win32')
+    ccompiler.compiler_class['mingw64'] = ('cygwinccompiler', 'Mingw64CCompiler',
+                                           'Mingw64 port of GNU C Compiler for Win32')
     cygwinccompiler.Mingw64CCompiler = Mingw64CCompiler
     sys.modules['distutils.cygwinccompiler'] = cygwinccompiler
     _distutils_hack.clear_distutils = suppress_warning(_distutils_hack.clear_distutils)
@@ -141,7 +141,7 @@ def check():
 
     # won't fix: in venv but enable usersite
     cuspy_path = customizepy_get_path()
-    if os.path.exists(cuspy_path):
+    if os.path.isfile(cuspy_path):
         with open(cuspy_path, encoding='u8') as f:
             cuspy_content = f.read()
         if 'mingw64ccompiler' in cuspy_content:
