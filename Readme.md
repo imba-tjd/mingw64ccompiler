@@ -12,7 +12,7 @@ python -m mingw64ccompiler install_specs  # Run once
 python -m mingw64ccompiler install        # Works with venv
 ```
 
-Then `python setup.py build_ext -i`, `cythonize -i`, `mypyc`, `pip wheel .` will use gcc as the default compiler, and it would link with ucrt.
+Then `python setup.py build_ext -i`, `cythonize -i`, `mypyc`, `pip wheel .`, `pip install --no-build-isolation` will use gcc as the default compiler, and it would link with ucrt.
 
 To programmally patch, use `__import__('mingw64ccompiler').patch()`. This doesn't require you to use `install` command firstly, but `cythonize` and other CLI tools won't work.
 
