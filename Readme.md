@@ -28,8 +28,9 @@ To use `-Wall` rather than `-Ofast`, set `MINGW64CCOMPILER_DEBUG` environment va
 * psutil: https://github.com/giampaolo/psutil/issues/330
 * lxml: Could not find function xmlCheckVersion in library libxml2. Is libxml2 installed?
 * llvmlite: requires cmake
-* numpy: still says VC++14 is required. Besides it may need openblas
+* numpy: mt19937.h:27:1: error: multiple storage classes in declaration specifiers
 * scipy: BLAS & LAPACK libraries need to be installed
+* pyodbc: it sets MSVC-specific args in setup.py
 
 ## Reference
 
