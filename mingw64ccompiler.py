@@ -68,8 +68,8 @@ def patch():
 
 # MinGW ucrt spec patch
 
-def specs_get_content(modify=False):
-    content = subprocess.run(['gcc', '-dumpspecs'], capture_output=True, check=True, text=True).stdout
+def specs_get_content(modify=False, cc='gcc'):
+    content = subprocess.run([cc, '-dumpspecs'], capture_output=True, check=True, text=True).stdout
     if modify:
         content = content.replace('-lmsvcrt', '-lucrt') \
             .replace('*cpp:\n', '*cpp:\n-D_UCRT ') \
@@ -77,8 +77,8 @@ def specs_get_content(modify=False):
     return content
 
 
-def specs_get_path():
-    return subprocess.run(['gcc', '-print-libgcc-file-name'], capture_output=True, check=True, text=True).stdout[:-len('libgcc.a\n')] + 'specs'
+def specs_get_path(cc='gcc'):
+    return subprocess.run([cc, '-print-libgcc-file-name'], capture_output=True, check=True, text=True).stdout[:-len('libgcc.a\n')] + 'specs'
 
 
 def specs_install():
@@ -130,8 +130,8 @@ def customizepy_uninstall():
 
 # CLI
 
-def check():
-    gccv = subprocess.run(['gcc', '-v'], capture_output=True, check=True, text=True).stderr
+def check(cc='gcc'):
+    gccv = subprocess.run([cc, '-v'], capture_output=True, check=True, text=True).stderr
     if 'Reading specs' in gccv:
         with open(specs_get_path(), encoding='u8') as f:
             spec_content = f.read()
