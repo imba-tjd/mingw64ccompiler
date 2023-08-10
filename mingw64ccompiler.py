@@ -68,7 +68,14 @@ def patch():
 
 # MinGW ucrt spec patch
 
-def specs_get_content(modify=False, cc='gcc'):
+def _get_default_mingw_gcc():
+    if platform.system() == 'Linux':
+        return 'x86_64-w64-mingw32-gcc'
+    else:
+        return 'gcc'
+
+
+def specs_get_content(modify=False, cc=_get_default_mingw_gcc()):
     content = subprocess.run([cc, '-dumpspecs'], capture_output=True, check=True, text=True).stdout
     if modify:
         content = content.replace('-lmsvcrt', '-lucrt') \
@@ -77,7 +84,7 @@ def specs_get_content(modify=False, cc='gcc'):
     return content
 
 
-def specs_get_path(cc='gcc'):
+def specs_get_path(cc=_get_default_mingw_gcc()):
     return subprocess.run([cc, '-print-libgcc-file-name'], capture_output=True, check=True, text=True).stdout[:-len('libgcc.a\n')] + 'specs'
 
 
