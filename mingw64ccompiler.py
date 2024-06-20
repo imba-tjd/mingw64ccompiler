@@ -3,28 +3,23 @@ import subprocess
 import os
 import sys
 from setuptools._distutils import cygwinccompiler, ccompiler
-from setuptools._distutils.cygwinccompiler import CygwinCCompiler, is_cygwincc, CCompilerError
+from setuptools._distutils.cygwinccompiler import Mingw32CCompiler
 import _distutils_hack
 
 
-class Mingw64CCompiler(CygwinCCompiler):
+class Mingw64CCompiler(Mingw32CCompiler):
     compiler_type = 'mingw64'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        if is_cygwincc(self.cc):
-            raise CCompilerError('Cygwin gcc cannot be used with --compiler=mingw64')
-
         options = []
-        if '64bit' in platform.architecture():
-            options.append('-DMS_WIN64')
-        else:
+        if '32bit' in platform.architecture():
             options.append('-m32')
-        if not os.getenv('MINGW64CCOMPILER_DEBUG') and not sys.flags.debug:
-            options += ['-Ofast', '-DNDEBUG', '-mtune=native', '-fwrapv']
-        else:
+        if os.getenv('MINGW64CCOMPILER_DEBUG') or sys.flags.debug:
             options += ['-g', '-Wall']
+        else:
+            options += ['-O3', '-DNDEBUG', '-mtune=native', '-fwrapv']
         options_str = ' '.join(options)
 
         linker_so_options_str = '-shared'
@@ -40,8 +35,6 @@ class Mingw64CCompiler(CygwinCCompiler):
             linker_exe=self.cc,
             linker_so=f'{self.linker_dll} {linker_so_options_str}',
         )
-
-        self.dll_libraries = []  # get_msvcr()
 
 
 def suppress_warning(func):
